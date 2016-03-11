@@ -6,5 +6,11 @@ package Interfaces;
  * */
 
 public interface AgentToModel {
+	
+	/** reserve n seats in distributed system if it can be done */
+	public void reserve(int n);
+	
+	/** free n seats in distributed system if it can be done */
+	public void free(int n);
 
 }

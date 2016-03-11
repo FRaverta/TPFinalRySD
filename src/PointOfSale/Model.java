@@ -27,6 +27,36 @@ public class Model implements ModelToTCPServer,ModelToAgent{
 	private synchronized int getFreeSeats(int n){
 		return freeSeats;
 	}
+
+	@Override
+	public void reserveRequest(int n) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void freeRequest(int n) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean reserve(int n) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean free(int n) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public int available() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	
 	
 }
