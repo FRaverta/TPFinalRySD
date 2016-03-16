@@ -2,7 +2,6 @@ package Middleware;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-//import org.json.*;
 
 /**
  * This class represent a single message with the following fields:
@@ -10,35 +9,44 @@ import org.json.JSONObject;
  * 		_int action: represent the action that try to be performed. (n>0 represent: reserve n, n<0 represent: free n, n=0 represente: OK msg)
  * 		_int ts: time stamp of virtual clock for Ricart-Agrawala Algorithm 
  * */
-public class Message extends JSONObject {
+public class Message {
 
-	public Message(int id,int action) throws JSONException{
-		super();
-		put("id", new Integer(id));
-		put("action", new Integer(action));
-		put("ts", new Integer(0));		
+	protected final int id,action,ts;
+	
+	public Message(int id,int ts,int action){
+		this.id = id;
+		this.ts = ts;
+		this.action = action;
 	}
 	
+	/**
+	 * Create a Message from a String representing a JSON Object
+	 * 
+	 * @param msg- JSON Object Message   
+	 * @throws JSONException 
+	 * */
 	public Message(String msg) throws JSONException{
-		super(msg);
+		JSONObject o = new JSONObject(msg);
+		id = o.getInt("id");
+		action = o.getInt("action");
+		ts = o.getInt("ts");			
 	}
 	
-	public int getId() throws JSONException{		
-		return getInt("id");
+	/**
+	 * Construct a JSON Object for current message
+	 * 
+	 * @return JSONObject resenting current message 
+	 * @throws JSONException 
+	 */
+	public JSONObject asJSONObject() throws JSONException{
+		JSONObject result = new JSONObject();
+		result.put("id",id);
+		result.put("action",action);
+		result.put("ts",ts);
+		return result;
 	}
 	
-	public int getAction() throws JSONException{		
-		return getInt("action");
-	}
-
-	public int getTs() throws JSONException{		
-		return getInt("ts");
-	}
 	
-	public void setTs(int ts) throws JSONException{
-		this.put("ts", ts);
-	}
-
 /*	
 	public static void main(String args[]){
 		

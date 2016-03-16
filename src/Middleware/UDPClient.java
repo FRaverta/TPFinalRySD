@@ -1,20 +1,81 @@
 package Middleware;
 
-import Interfaces.UDPClientToReliabilityService;
+import main.Setting;
 
-public class UDPClient implements UDPClientToReliabilityService{
+import java.io.*;
+import java.net.*; 
 
-	@Override
+public class UDPClient implements Runnable{
+
+	private DSManager ds;
+	private Setting setting;
+		
+	public UDPClient(DSManager ds,Setting setting){
+		this.ds = ds;
+		this.setting = setting;
+	}
+	
+	//borrar
+	public UDPClient(){
+		this.ds=ds;
+	}
+
 	public void run() {
-		// TODO Auto-generated method stub
-		
+		while(true){
+			String m;
+			try {
+				m = ds.getMsgForSend();
+				send(m);
+			} catch (InterruptedException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
 	}
 
-	@Override
-	public void send(String msg) {
+	public void send(String msg) throws SocketException, IOException{
 		/*Enviar mensaje a todos los peers (BROADCAST)*/
-		/*ESPERAR EL ACK DE TODOS, si no sucede volver a enviar*/
+		DatagramSocket clientSocket = new DatagramSocket();
 		
+		for(int i=0; i < setting.PEERS; i++){
+			InetAddress IPAddress = InetAddress.getByName(setting.PEERSADDR[i]);
+			DatagramPacket sendPacket = new DatagramPacket(msg.getBytes(), msg.length() , IPAddress, setting.PEERSPORT[i]);
+			System.out.println("SEND TO: " + IPAddress.toString() + " Port: " + setting.PEERSPORT[i]+ " msg: " + msg);
+			clientSocket.send(sendPacket);
+		}
+		clientSocket.close();
 	}
+
+//	public void send(String msg) throws SocketException, IOException{
+//		/*Enviar mensaje a todos los peers (BROADCAST)*/
+//		/*ESPERAR EL ACK DE TODOS, si no sucede volver a enviar*/
+//		int timeout = 1000;
+//		DatagramSocket clientSocket = new DatagramSocket();
+//		
+//		for(int i=0; i < Setting.PEERS; i++){
+//			while(true){
+//				InetAddress IPAddress = InetAddress.getByName(Setting.PEERSADDR[i]);
+//				byte[] receiveData = new byte[1024];
+//				DatagramPacket sendPacket = new DatagramPacket(msg.getBytes(), msg.length() , IPAddress, Setting.PEERSPORT[i]);
+//				clientSocket.send(sendPacket);
+//				DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+//				try{
+//					clientSocket.setSoTimeout(timeout);
+//					clientSocket.receive(receivePacket);
+//					String answer = new String(receivePacket.getData());
+//					System.out.println("FROM SERVER: " + receivePacket.getAddress().toString() + " Port: " + receivePacket.getPort()+ " msg: " + answer);
+//					if( receivePacket.getAddress().equals(IPAddress) && receivePacket.getPort() == Setting.PEERSPORT[i]) 
+//						break;
+//					else
+//						continue;
+//				}catch(InterruptedIOException e){
+//					System.out.println("Menssage " + i + " lost");
+//					
+//				}
+//			}			
+//		}		
+//		clientSocket.close();  
+//	}
 
 }
