@@ -17,6 +17,7 @@ class QueueMsg implements Comparable<QueueMsg>{
 		this.msg = msg;
 		votes = 0;	
 		isPerformed = false;
+		vote= false;
 	}
 	
 	/**
