@@ -18,7 +18,7 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 	
 	private Setting setting;
 	
-	/** Ricart-Agrawala's algorithm priority queue(ordering by message.ts): a message with the amount of votes that it has been obtained.*/
+//	/** Ricart-Agrawala's algorithm priority queue(ordering by message.ts): a message with the amount of votes that it has been obtained.*/
 	private PriorityQueue<QueueMsg> queue; 
 	
 	/**Lamport virtual clock for Ricart-Agrawala's algorithm*/
@@ -57,8 +57,9 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 	 * @throws JSONException 
 	 * */
 	public synchronized void receive(String msg) throws JSONException {
+		System.out.println(setting.PEER_ID +" "+ msg.toString());
 		Message m = new Message(msg);
-		if(m.id == 0){
+		if(m.action == 0){
 			boolean vote = false;
 			synchronized(queue){
 				for(QueueMsg qm: queue)
@@ -85,6 +86,7 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 					int i=0;
 					while(i < OkMsgList.size()){			
 						if(queueMsg.checkVote(OkMsgList.get(i))){
+							System.out.println("Voto arrive before");
 							//Remove vote if it found the vote's owner
 							OkMsgList.remove(i);
 							//perform the election
@@ -95,7 +97,7 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 				}
 		
 				//add message to Richard-Agrawala's algorithm queue 
-				synchronized(queueMsg){
+				synchronized(queue){
 					queue.add(queueMsg);
 					if(queue.peek() == queueMsg){
 						vote(queueMsg);
@@ -116,10 +118,12 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 	 *********************************************************************************/
 		
 	public boolean reserve(int n) throws InterruptedException{
+		System.out.println("llegue");
+
 		return actionRequest(n);
 	}
 	
-	public synchronized boolean free(int n) throws InterruptedException{
+	public boolean free(int n) throws InterruptedException{
 		return actionRequest(-n);
 	}
 
@@ -129,14 +133,15 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 	
 	/*********************************************************************************
 	 *                           DSManager to TCPClient
+	 * @throws JSONException 
 	 *  
 	 * 
 	 *********************************************************************************/
-	public String getMsgForSend() throws InterruptedException {
+	public String getMsgForSend() throws InterruptedException, JSONException {
 		synchronized(forSend){ 			
 			if(forSend.isEmpty())				
 				forSend.wait();			
-			return forSend.remove().toString();	
+			return forSend.remove().asJSONObject().toString();	
 		}	
 	}
 
@@ -158,13 +163,14 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 	 
 	private void vote(QueueMsg m){
 		synchronized(queue){
-			m.vote();
+			m.vote();		
 			if(m.getVotes() == setting.PEERS){
 				QueueMsg action = queue.remove();
+				System.out.println("assda");
 				vc.inc();
 				action.setIsPerformed((action.getAction() > 0)? state.sub(action.getAction()): state.add(-action.getAction()));
 				if(action.getId() == setting.PEER_ID)					
-					action.notify();
+					synchronized (action){ action.notify();}
 					
 				if(!queue.isEmpty()){
 					QueueMsg forVote = queue.peek();
@@ -178,23 +184,26 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 	private void send(Message m){
 		synchronized(forSend){
 			forSend.add(m);
-			notify();
+			forSend.notify();
 		}
 	}
 	
-	private synchronized boolean actionRequest(int n) throws InterruptedException{
+	private boolean actionRequest(int n) throws InterruptedException{
 		QueueMsg actionMsg = new QueueMsg (new Message(setting.PEER_ID,vc.inc(),n));
 		
 		synchronized (queue){
 			queue.add(actionMsg);
 			if(queue.peek() == actionMsg){
 				vote(actionMsg);
+				Message okMsg = new Message(actionMsg.msg.id, actionMsg.msg.ts,0);
+				send(okMsg);
 			}			 					
 		}
-		
 		send(actionMsg.msg);
+		System.out.println("llegue");
 		synchronized(actionMsg){
-			wait();
+			System.out.println("llegue");
+			actionMsg.wait();
 			return actionMsg.getIsPerformed();				
 		}
 	}

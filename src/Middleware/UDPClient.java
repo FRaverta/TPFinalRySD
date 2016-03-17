@@ -3,7 +3,9 @@ package Middleware;
 import main.Setting;
 
 import java.io.*;
-import java.net.*; 
+import java.net.*;
+
+import org.json.JSONException; 
 
 public class UDPClient implements Runnable{
 
@@ -26,7 +28,7 @@ public class UDPClient implements Runnable{
 			try {
 				m = ds.getMsgForSend();
 				send(m);
-			} catch (InterruptedException | IOException e) {
+			} catch (InterruptedException | IOException | JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -39,9 +41,12 @@ public class UDPClient implements Runnable{
 		DatagramSocket clientSocket = new DatagramSocket();
 		
 		for(int i=0; i < setting.PEERS; i++){
+			//Check if current message's addressee if current peer, if it happen don't send message
+			if(i == setting.PEER_ID)
+				continue;
 			InetAddress IPAddress = InetAddress.getByName(setting.PEERSADDR[i]);
-			DatagramPacket sendPacket = new DatagramPacket(msg.getBytes(), msg.length() , IPAddress, setting.PEERSPORT[i]);
-			System.out.println("SEND TO: " + IPAddress.toString() + " Port: " + setting.PEERSPORT[i]+ " msg: " + msg);
+			DatagramPacket sendPacket = new DatagramPacket(msg.getBytes(), msg.length() , IPAddress, setting.PEERS_UDP_SERVER_PORT[i]);
+			System.out.println("SEND TO: " + IPAddress.toString() + " Port: " + setting.PEERS_UDP_SERVER_PORT[i]+ " msg: " + msg);
 			clientSocket.send(sendPacket);
 		}
 		clientSocket.close();

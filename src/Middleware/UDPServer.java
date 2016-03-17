@@ -27,7 +27,7 @@ public class UDPServer implements Runnable{
 			serverSocket = new DatagramSocket(port);
 			byte[] receiveData = new byte[1024];            
 //			byte[] sendData = "ACK".getBytes();
-	
+			System.out.println("UDPServer Running at port: " + port);
 			while(true){                   
 				DatagramPacket receivePacket = new DatagramPacket(receiveData,receiveData.length);
 				serverSocket.receive(receivePacket);
