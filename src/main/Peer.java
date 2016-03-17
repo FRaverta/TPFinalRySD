@@ -37,7 +37,7 @@ public class Peer {
 //		Setting setting = new Setting(0);
 
 		Peer p0 =  new Peer(0);
-		Peer p1 =  new Peer(1);
+//		Peer p1 =  new Peer(1);
 		
 		
 //		Message m;
