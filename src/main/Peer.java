@@ -15,7 +15,7 @@ import PointOfSale.TCPServer;
 public class Peer {
 
 	public Peer(int i) throws FileNotFoundException, JSONException{
-		Setting setting = new Setting("/home/nando/Desktop/setting.json",i);
+		Setting setting = new Setting("setting.json",i);
 		DSManager ds = new DSManager(setting);
 		
 		UDPServer udpServer = new UDPServer(ds,setting.UDP_SERVER_PORT);
