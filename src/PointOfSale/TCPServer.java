@@ -43,6 +43,7 @@ public class TCPServer implements Runnable{
     public void run(){
     try{
     	ServerSocket sk = new ServerSocket(port);
+    	System.out.println("TCPServer Running at port: " + port);
     	while (true) {
     		try{
 	        	String clientSentence;
@@ -62,7 +63,7 @@ public class TCPServer implements Runnable{
 		            	case "reserve":
 		            		try{
 		            			n = Integer.parseInt(clientSentence.substring(e1+1));		            		
-		            			if(n<0) throw new NumberFormatException();
+		            			if(n<=0) throw new NumberFormatException();
 		            			isPerformed = ds.reserve(n);	
 		            			outToClient.writeChars((isPerformed)? "reserve " + n + " seats.\n": "reserve " + n + "can't was done.\n" );
 		            		}catch(NumberFormatException e){outToClient.writeChars(errorMsg);}
@@ -71,7 +72,7 @@ public class TCPServer implements Runnable{
 		            	case "cancel":
 		            		try{
 		            			n = Integer.parseInt(clientSentence.substring(e1+1));
-		            			if(n<0) throw new NumberFormatException();
+		            			if(n<=0) throw new NumberFormatException();
 			            		isPerformed = ds.free(n);	
 			            		outToClient.writeChars((isPerformed)? "cancel " + n + " seats.\n": "cancel " + n + "can't was done.\n"  );
 		            		}catch(NumberFormatException e){outToClient.writeChars(errorMsg);}
