@@ -18,7 +18,7 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 	
 	private Setting setting;
 	
-//	/** Ricart-Agrawala's algorithm priority queue(ordering by message.ts): a message with the amount of votes that it has been obtained.*/
+	/** Ricart-Agrawala's algorithm priority queue(ordering by message.ts): a message with the amount of votes that it has been obtained.*/
 	private PriorityQueue<QueueMsg> queue; 
 	
 	/**Lamport virtual clock for Ricart-Agrawala's algorithm*/
@@ -57,59 +57,64 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 	 * @throws JSONException 
 	 * */
 	public synchronized void receive(String msg) throws JSONException {
-		System.out.println(setting.PEER_ID +" "+ msg.toString());
 		Message m = new Message(msg);
-		if(m.action == 0){
-			boolean vote = false;
-			synchronized(queue){
-				for(QueueMsg qm: queue)
-					if (vote = qm.checkVote(m)){				
-						vote(qm,false);
-						break; 
-					}
-			}	
-			//ojo que puede que el mensaje de ok alla llegado antes que el mensaje propiamente dicho
-			//a vote can arrive before than the candidate
-			synchronized(OkMsgList){
-				if(!vote)
-					OkMsgList.add(m);					
-			}
-		}else{			
-				//build an object for enqueue current message in  Ricart-Agrawala's algorithm queue
-				QueueMsg queueMsg = new QueueMsg(m);
+		if( m.action == 0 )
+			receiveOk(m);
+		else
+			receiveAction(m);
+	}
+	
+	/**
+	 * 
+	 * */
+	private void receiveOk(Message okMsg){
+		boolean vote = false;
 		
-				//Update Lamport's virtual clock acording Ricart-Agrawala's algorithm
-				vc.update(m.ts);
-		
-				//check if some vote for it message has arrived before
-				synchronized(OkMsgList){			
-					int i=0;
-					while(i < OkMsgList.size()){			
-						if(queueMsg.checkVote(OkMsgList.get(i))){
-							System.out.println("Voto arrive before");
-							//Remove vote if it found the vote's owner
-							OkMsgList.remove(i);
-							//perform the election
-							vote(queueMsg,false);
-						}
-						i++;
-					}
+		synchronized(queue){
+			//check if the vote's owner arrive. If it happend it should  
+			for(QueueMsg qm: queue)
+				if (vote = qm.checkVote(okMsg)){				
+					qm.vote();
+					break; 
 				}
+			
+			//if the message's owner hasn't arrive, save it. 
+			if(!vote)
+				synchronized(OkMsgList){				
+					OkMsgList.add(okMsg);					
+				}
+			else
+				dequeue();
+		}				
+	}
+	
+	private void receiveAction(Message actionMsg){
+		//build an object for enqueue current message in  Ricart-Agrawala's algorithm queue
+		QueueMsg queueMsg = new QueueMsg(actionMsg);
 		
-				//add message to Richard-Agrawala's algorithm queue 
-				synchronized(queue){
-					queue.add(queueMsg);
-					if(queue.peek() == queueMsg){
-						vote(queueMsg,false);
-						//Send vote msg
-						//incVC();
-						queueMsg.setAsVote();
-						Message okMsg = new Message(m.id, m.ts,0);
-						send(okMsg);
-					}		
-				}	
+		enqueue(queueMsg);
+		
+		//check if some vote for it message has arrived before
+		synchronized(OkMsgList){			
+			int i=0;
+			while(i < OkMsgList.size()){			
+				if(queueMsg.checkVote(OkMsgList.get(i))){
+					//Remove vote if it found the vote's owner
+					OkMsgList.remove(i);
+					//perform the election
+					queueMsg.vote();
+				}
+				i++;
 			}
 		}
+		
+		dequeue();
+	}
+
+	
+	
+		
+
 
 		
 	/*********************************************************************************
@@ -119,8 +124,6 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 	 *********************************************************************************/
 		
 	public boolean reserve(int n) throws InterruptedException{
-		System.out.println("llegue");
-
 		return actionRequest(n);
 	}
 	
@@ -152,39 +155,42 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 	 * 
 	 *********************************************************************************/
 
-	
-//	/** Increment Lamport's virtual clock. This operation must be performed 
-//	 *  in the following cases:
-//	 *  	_ A message from Agent should be send.
-//	 * 		_ Message from queue should be popped.
-//	 * */
-//	private synchronized void incVC(){	
-//		vc++;
-//	} 
-	 
-	private void vote(QueueMsg m,boolean parche){
+	private void enqueue(QueueMsg queueMsg){
 		synchronized(queue){
-			if(parche){
-				if(!m.amIVote()) m.vote(); 
-			}else
-				m.vote();		
-			if(m.getVotes() == setting.PEERS){
-				QueueMsg action = queue.remove();
-				System.out.println("assda");
-				vc.inc();
-				action.setIsPerformed((action.getAction() > 0)? state.sub(action.getAction()): state.add(-action.getAction()));
-				if(action.getId() == setting.PEER_ID)					
-					synchronized (action){ action.notify();}
-					
-				if(!queue.isEmpty()){
-					
-					QueueMsg forVote = queue.peek();
-					send(new Message(forVote.getId(),forVote.getTs(),0));
-					vote(forVote,true);
-				}
-			}
+			//build an object for enqueue current message in  Ricart-Agrawala's algorithm queue
+			queue.add(queueMsg);
+			if(queueMsg == queue.peek())							
+				queueMsg.vote();
+				sendOkMsg(queueMsg.msg);
+				queueMsg.setAsVote();
 		}
 	}
+	
+	private void dequeue(){
+		synchronized(queue){			
+			if(!queue.isEmpty() && queue.peek().getVotes() == setting.PEERS){
+				QueueMsg action = queue.poll();
+				vc.inc();
+				
+				//Try perform current action
+				action.setIsPerformed((action.getAction() > 0)? state.sub(action.getAction()): state.add(-action.getAction()));
+				
+				//if the action's owner is current peer. Wake up the TCPServer thread.
+				if(action.getId() == setting.PEER_ID)					
+					synchronized (action){ action.notify();}
+				
+				//Check if there is a message in the queue for vote 
+				if(!queue.isEmpty() && !queue.peek().amIVote()){
+					queue.peek().vote();
+					queue.peek().setAsVote();
+					sendOkMsg(queue.peek().msg);
+				}
+				//Check if other message should be dequeue
+				dequeue();
+			}			
+		}
+	}
+	
 		
 	private void send(Message m){
 		synchronized(forSend){
@@ -194,26 +200,38 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 	}
 	
 	private boolean actionRequest(int n) throws InterruptedException{
-		QueueMsg actionMsg = new QueueMsg (new Message(setting.PEER_ID,vc.inc(),n));
-		send(actionMsg.msg);
+		//update Lamport's virtual clock acording Ricart-Agrawala's algorithm
+		int ts = vc.inc();			
+		QueueMsg actionMsg = new QueueMsg (new Message(setting.PEER_ID,ts,n));
 		
+		enqueue(actionMsg);
+	
+		/*
 		synchronized (queue){
 			queue.add(actionMsg);
+		}*/
+		
+		send(actionMsg.msg);
+		
+		/*
+		synchronized (queue){			
 			if(queue.peek() == actionMsg){
 				vote(actionMsg,false);
 				actionMsg.setAsVote();
 				Message okMsg = new Message(actionMsg.msg.id, actionMsg.msg.ts,0);
 				send(okMsg);
 			}			 					
-		}
+		}*/
 
-		
-		System.out.println("llegue");
+		//sleep invoker until the operation be performed. The operation can be successful or not. 
 		synchronized(actionMsg){
-			System.out.println("llegue");
 			actionMsg.wait();
 			return actionMsg.getIsPerformed();				
 		}
+	}
+	
+	private void sendOkMsg(Message forVote){
+		send(new Message(forVote.id,forVote.ts,0));	
 	}
 
 }
