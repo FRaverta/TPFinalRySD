@@ -27,6 +27,13 @@ import org.w3c.dom.NodeList;
 public class TCPServer implements Runnable{
 	int port;
 	DSManager ds;
+	
+	private static final String errorMsg= "The given instruction was incorrect. \n"+
+										      "_ reserve n  - reserve n (n > 0) seats \n"+
+										      "_ cancel n   - free n (n > 0) seats    \n"+
+										      "_ available  - consult how many seats are free \n"+
+										      "_ quit       - for close conexion\n";
+										   
 
 	public TCPServer(int port,DSManager ds){
 			this.port = port;
@@ -37,14 +44,13 @@ public class TCPServer implements Runnable{
     try{
     	ServerSocket sk = new ServerSocket(port);
     	while (true) {
-        	
+    		try{
 	        	String clientSentence;
 	            Socket connectionSocket = sk.accept();
-	            boolean closeConexion = false;
 	            BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
 	            DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
 	            
-	            while(!closeConexion){		           		           
+	            while(!connectionSocket.isClosed()){		           		           
 		            clientSentence = inFromClient.readLine().toLowerCase();
 		            
 		            int e1 = clientSentence.indexOf(' ');
@@ -53,27 +59,39 @@ public class TCPServer implements Runnable{
 		            int n;
 		            boolean isPerformed;
 		            switch (action){
-		            	case "reserve":	            	
-		            		isPerformed = ds.reserve(n = Integer.parseInt(clientSentence.substring(e1+1)));	
-		            		outToClient.writeChars((isPerformed)? "reserve " + n + " seats.\n": "reserve " + n + "can't was done.\n" );
+		            	case "reserve":
+		            		try{
+		            			n = Integer.parseInt(clientSentence.substring(e1+1));		            		
+		            			if(n<0) throw new NumberFormatException();
+		            			isPerformed = ds.reserve(n);	
+		            			outToClient.writeChars((isPerformed)? "reserve " + n + " seats.\n": "reserve " + n + "can't was done.\n" );
+		            		}catch(NumberFormatException e){outToClient.writeChars(errorMsg);}
 		            		break;
-		            	case "cancel":		            	
-		            		isPerformed=ds.free(n = Integer.parseInt(clientSentence.substring(e1+1)));	
-		            		outToClient.writeChars((isPerformed)? "cancel " + n + " seats.\n": "cancel " + n + "can't was done.\n"  );
+		            		
+		            	case "cancel":
+		            		try{
+		            			n = Integer.parseInt(clientSentence.substring(e1+1));
+		            			if(n<0) throw new NumberFormatException();
+			            		isPerformed = ds.free(n);	
+			            		outToClient.writeChars((isPerformed)? "cancel " + n + " seats.\n": "cancel " + n + "can't was done.\n"  );
+		            		}catch(NumberFormatException e){outToClient.writeChars(errorMsg);}
 		            		break;
 		            	case "available":
 		            		outToClient.writeChars("There are: "+ ds.available() + " available seats \n");
 		            		break;
 		            	case "quit":
-		            		sk.close();
+		            		outToClient.writeChars("leaving conexion...\n");
+		            		connectionSocket.close();		            		
 		            		break;
 		            	default:
-		            		outToClient.writeChars("Incorrect action \n");
-		            		closeConexion = false;
+		            		outToClient.writeChars(errorMsg);
 		            		break;
 		            	
 		            }
+		            
 	            }
+    		}catch(IOException|NullPointerException e){continue;}
+
     	}
 	}catch(Exception e){
         		e.printStackTrace();
