@@ -6,7 +6,7 @@ import org.json.JSONObject;
 /**
  * This class represent a single message with the following fields:
  * 		_int id: process id. It will be unique in the distributed system.
- * 		_int action: represent the action that try to be performed. (n>0 represent: reserve n, n<0 represent: free n, n=0 represente: OK msg)
+ * 		_int action: represent the action that try to be performed. (n>0 represent: reserve n, n<0 represent: free -n, n=0 represente: OK msg)
  * 		_int ts: time stamp of virtual clock for Ricart-Agrawala Algorithm 
  * */
 public class Message {

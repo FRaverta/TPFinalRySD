@@ -9,7 +9,7 @@ class QueueMsg implements Comparable<QueueMsg>{
 	public final Message msg;
 	private int votes;
 	private boolean isPerformed;
-	
+	private boolean vote; //true if current peer vote this message
 	/**
 	 * Construct a QueueMsg without votes.
 	 * */
@@ -38,12 +38,12 @@ class QueueMsg implements Comparable<QueueMsg>{
 		int currentTs = msg.ts;
 		int otherTs = o.msg.ts;
 		
-		if(currentTs < otherTs) return -1;
-		if(currentTs > otherTs) return 1;
+		if(currentTs < otherTs) return 1;
+		if(currentTs > otherTs) return -1;
 		if( currentTs == otherTs )
-			if( msg.id < o.msg.id) return -1;
+			if( msg.id < o.msg.id) return 1;
 			else if ( msg.id > o.msg.id )  
-				return 1;
+				return -1;
 				else return 0;
 
 		//fatal error
@@ -74,5 +74,12 @@ class QueueMsg implements Comparable<QueueMsg>{
 		return isPerformed;
 	}
 	
+	public void setAsVote(){
+		this.vote = true;
+	}
+	
+	public boolean amIVote(){
+		return this.vote;
+	}
 	
 }

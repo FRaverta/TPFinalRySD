@@ -64,7 +64,7 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 			synchronized(queue){
 				for(QueueMsg qm: queue)
 					if (vote = qm.checkVote(m)){				
-						vote(qm);
+						vote(qm,false);
 						break; 
 					}
 			}	
@@ -90,7 +90,7 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 							//Remove vote if it found the vote's owner
 							OkMsgList.remove(i);
 							//perform the election
-							vote(queueMsg);
+							vote(queueMsg,false);
 						}
 						i++;
 					}
@@ -100,7 +100,7 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 				synchronized(queue){
 					queue.add(queueMsg);
 					if(queue.peek() == queueMsg){
-						vote(queueMsg);
+						vote(queueMsg,false);
 						//Send vote msg
 						//incVC();
 						Message okMsg = new Message(m.id, m.ts,0);
@@ -161,9 +161,12 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 //		vc++;
 //	} 
 	 
-	private void vote(QueueMsg m){
+	private void vote(QueueMsg m,boolean parche){
 		synchronized(queue){
-			m.vote();		
+			if(parche)
+				if(!m.amIVote()) m.vote(); 
+			else
+				m.vote();		
 			if(m.getVotes() == setting.PEERS){
 				QueueMsg action = queue.remove();
 				System.out.println("assda");
@@ -173,9 +176,10 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 					synchronized (action){ action.notify();}
 					
 				if(!queue.isEmpty()){
+					
 					QueueMsg forVote = queue.peek();
 					send(new Message(forVote.getId(),forVote.getTs(),0));
-					vote(forVote);
+					vote(forVote,true);
 				}
 			}
 		}
@@ -190,16 +194,18 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 	
 	private boolean actionRequest(int n) throws InterruptedException{
 		QueueMsg actionMsg = new QueueMsg (new Message(setting.PEER_ID,vc.inc(),n));
+		send(actionMsg.msg);
 		
 		synchronized (queue){
 			queue.add(actionMsg);
 			if(queue.peek() == actionMsg){
-				vote(actionMsg);
+				vote(actionMsg,false);
 				Message okMsg = new Message(actionMsg.msg.id, actionMsg.msg.ts,0);
 				send(okMsg);
 			}			 					
 		}
-		send(actionMsg.msg);
+
+		
 		System.out.println("llegue");
 		synchronized(actionMsg){
 			System.out.println("llegue");
