@@ -103,6 +103,7 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 						vote(queueMsg,false);
 						//Send vote msg
 						//incVC();
+						queueMsg.setAsVote();
 						Message okMsg = new Message(m.id, m.ts,0);
 						send(okMsg);
 					}		
@@ -163,9 +164,9 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 	 
 	private void vote(QueueMsg m,boolean parche){
 		synchronized(queue){
-			if(parche)
+			if(parche){
 				if(!m.amIVote()) m.vote(); 
-			else
+			}else
 				m.vote();		
 			if(m.getVotes() == setting.PEERS){
 				QueueMsg action = queue.remove();
@@ -200,6 +201,7 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 			queue.add(actionMsg);
 			if(queue.peek() == actionMsg){
 				vote(actionMsg,false);
+				actionMsg.setAsVote();
 				Message okMsg = new Message(actionMsg.msg.id, actionMsg.msg.ts,0);
 				send(okMsg);
 			}			 					
