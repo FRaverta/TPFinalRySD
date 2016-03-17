@@ -53,7 +53,7 @@ public class TCPServer implements Runnable{
 	            
 	            while(!connectionSocket.isClosed()){		           		           
 		            clientSentence = inFromClient.readLine().toLowerCase();
-		            
+		            System.out.println("TCPServer: " + clientSentence.toString());
 		            int e1 = clientSentence.indexOf(' ');
 		            	           
 		            String action = (e1 > 0 && e1 < clientSentence.length()  )? clientSentence.substring(0,e1):  clientSentence;
