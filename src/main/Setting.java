@@ -79,7 +79,7 @@ public class Setting {
 	}
 	
 	public static void main(String args[]) throws FileNotFoundException, JSONException{
-		Setting s = new Setting("/home/nando/Desktop/setting.json",0);
+		Setting s = new Setting("setting.json",0);
 		
 		System.out.println(s.toString());
 		
