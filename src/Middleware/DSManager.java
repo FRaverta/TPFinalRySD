@@ -89,9 +89,12 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 	}
 	
 	private void receiveAction(Message actionMsg){
+		//update Lamport's virtual clock acording Ritchar-Agrawala's algorithm.
+		vc.update(actionMsg.ts);
+		
 		//build an object for enqueue current message in  Ricart-Agrawala's algorithm queue
 		QueueMsg queueMsg = new QueueMsg(actionMsg);
-		
+				
 		enqueue(queueMsg);
 		
 		//check if some vote for it message has arrived before
