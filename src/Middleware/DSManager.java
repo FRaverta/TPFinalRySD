@@ -30,6 +30,7 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 
 	private State state;
 	
+	private Integer lock = new Integer(0);
 	/**
 	 * Class constructor
 	 * 
@@ -89,14 +90,17 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 	}
 	
 	private void receiveAction(Message actionMsg){
-		//update Lamport's virtual clock acording Ritchar-Agrawala's algorithm.
-		vc.update(actionMsg.ts);
+		QueueMsg queueMsg;
 		
-		//build an object for enqueue current message in  Ricart-Agrawala's algorithm queue
-		QueueMsg queueMsg = new QueueMsg(actionMsg);
-				
-		enqueue(queueMsg);
-		
+		synchronized(lock){
+			//update Lamport's virtual clock acording Ritchar-Agrawala's algorithm.
+			vc.update(actionMsg.ts);
+			
+			//build an object for enqueue current message in  Ricart-Agrawala's algorithm queue
+			queueMsg = new QueueMsg(actionMsg);
+					
+			enqueue(queueMsg);
+		}
 		//check if some vote for it message has arrived before
 		synchronized(OkMsgList){			
 			int i=0;
@@ -157,7 +161,7 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 	 *                           Local Methods
 	 * 
 	 *********************************************************************************/
-
+	
 	private void enqueue(QueueMsg queueMsg){
 		synchronized(queue){
 			//build an object for enqueue current message in  Ricart-Agrawala's algorithm queue
@@ -174,7 +178,7 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 			if(!queue.isEmpty() && queue.peek().getVotes() == setting.PEERS){
 				QueueMsg action = queue.poll();
 				vc.inc();
-				
+				System.out.println("Dequeue " + action.msg.toString() );
 				//Try perform current action
 				action.setIsPerformed((action.getAction() > 0)? state.sub(action.getAction()): state.add(-action.getAction()));
 				
@@ -203,12 +207,14 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToUDPServer,DSMa
 	}
 	
 	private boolean actionRequest(int n) throws InterruptedException{
-		//update Lamport's virtual clock acording Ricart-Agrawala's algorithm
-		int ts = vc.inc();			
-		QueueMsg actionMsg = new QueueMsg (new Message(setting.PEER_ID,ts,n));
-		
-		enqueue(actionMsg);
-	
+		QueueMsg actionMsg;
+		synchronized(lock){
+			//update Lamport's virtual clock acording Ricart-Agrawala's algorithm
+			int ts = vc.inc();			
+			actionMsg = new QueueMsg (new Message(setting.PEER_ID,ts,n));
+			
+			enqueue(actionMsg);
+		}
 		/*
 		synchronized (queue){
 			queue.add(actionMsg);
