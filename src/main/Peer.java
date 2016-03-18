@@ -11,6 +11,8 @@ import Middleware.Message;
 import Middleware.UDPClient;
 import Middleware.UDPServer;
 import PointOfSale.TCPServer;
+import servers.TCPClient;
+import servers.ThreadPooledServer;
 
 public class Peer {
 
@@ -18,8 +20,11 @@ public class Peer {
 		Setting setting = new Setting("setting.json",i);
 		DSManager ds = new DSManager(setting);
 		
-		UDPServer udpServer = new UDPServer(ds,setting.PEER_ID,setting.UDP_SERVER_PORT);
-		UDPClient udpClient = new UDPClient(ds,setting);
+		//UDPServer udpServer = new UDPServer(ds,setting.PEER_ID,setting.UDP_SERVER_PORT);
+		//UDPClient udpClient = new UDPClient(ds,setting);
+		
+		ThreadPooledServer udpServer = new ThreadPooledServer(setting.UDP_SERVER_PORT, ds);
+		TCPClient udpClient = new TCPClient(ds, setting);
 		TCPServer tcpServer = new TCPServer(ds, setting.PEER_ID,setting.TCP_SERVER_PORT);
 				
 		Thread udpServerThread = new Thread(udpServer);
@@ -37,6 +42,7 @@ public class Peer {
 //		Setting setting = new Setting(0);
 
 		Peer p0 =  new Peer(0);
+		Peer p1 =  new Peer(1);
 //|		Peer p1 =  new Peer(2);
 //		Peer p2 =  new Peer(2);
 		

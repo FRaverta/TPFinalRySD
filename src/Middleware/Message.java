@@ -46,7 +46,14 @@ public class Message {
 		return result;
 	}
 	
-	
+	public String toString(){
+		try{
+			return this.asJSONObject().toString();
+		}catch(Exception e){e.printStackTrace();}
+		return null;
+			
+	}
+
 /*	
 	public static void main(String args[]){
 		
