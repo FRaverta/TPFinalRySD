@@ -15,9 +15,17 @@ public class UDPServer implements Runnable{
 	private DSManager ds;
 	private int port;
 	
-	public UDPServer(DSManager ds, int port){
+	FileWriter w;
+	
+	public UDPServer(DSManager ds,int id ,int port){
 		this.ds=ds;
 		this.port = port;
+		try {
+			w = new FileWriter("dump/UDPServer"+ id + ".txt");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}	
 	@Override
 	public void run() {
@@ -27,12 +35,12 @@ public class UDPServer implements Runnable{
 			serverSocket = new DatagramSocket(port);
 			byte[] receiveData = new byte[1024];            
 //			byte[] sendData = "ACK".getBytes();
-			System.out.println("UDPServer Running at port: " + port);
+			w.append("UDPServer Running at port: " + port);w.flush();
 			while(true){                   
 				DatagramPacket receivePacket = new DatagramPacket(receiveData,receiveData.length);
 				serverSocket.receive(receivePacket);
 				String msg = new String( receivePacket.getData());			
-				System.out.println("FROM CLIENT: " + receivePacket.getAddress().toString() + " Port: " + receivePacket.getPort()+ " msg: " + msg);
+				w.append("Receive from client: " + receivePacket.getAddress().toString() + " Port: " + receivePacket.getPort()+ " msg: " + msg+"\n");w.flush();
 				ds.receive(msg);
 //				InetAddress IPAddress = receivePacket.getAddress();
 //				int port = receivePacket.getPort(); 

@@ -6,6 +6,8 @@ import Middleware.DSManager;
 public class TCPServer implements Runnable{
 	int port;
 	DSManager ds;
+	FileWriter w;
+	
 	
 	private static final String errorMsg= "The given instruction was incorrect. \n"+
 										      "_ reserve n  - reserve n (n > 0) seats \n"+
@@ -14,15 +16,22 @@ public class TCPServer implements Runnable{
 										      "_ quit       - for close conexion\n";
 										   
 
-	public TCPServer(int port,DSManager ds){
+	public TCPServer(DSManager ds,int id, int port){
 			this.port = port;
 			this.ds = ds;
+			try {
+				w = new FileWriter("dump/TCPServer" + id + ".txt");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	}
 		
     public void run(){
     try{
     	ServerSocket sk = new ServerSocket(port);
-    	System.out.println("TCPServer Running at port: " + port);
+    	w.append("TCPServer Running at port: " + port);
+    	w.flush();
     	while (true) {
     		try{
 	        	String clientSentence;
@@ -32,7 +41,7 @@ public class TCPServer implements Runnable{
 	            
 	            while(!connectionSocket.isClosed()){		           		           
 		            clientSentence = inFromClient.readLine().toLowerCase();
-		            System.out.println("TCPServer: " + clientSentence.toString());
+		            w.append("TCPServer: receive" + clientSentence.toString() + "\n");w.flush();
 		            int e1 = clientSentence.indexOf(' ');
 		            	           
 		            String action = (e1 > 0 && e1 < clientSentence.length()  )? clientSentence.substring(0,e1):  clientSentence;

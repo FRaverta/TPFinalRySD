@@ -11,10 +11,19 @@ public class UDPClient implements Runnable{
 
 	private DSManager ds;
 	private Setting setting;
+	FileWriter w;
 		
 	public UDPClient(DSManager ds,Setting setting){
 		this.ds = ds;
-		this.setting = setting;
+		this.setting = setting; 
+		
+		try {
+			w = new FileWriter("dump/UDPClient" + setting.PEER_ID + ".txt");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 	
 	//borrar
@@ -46,7 +55,7 @@ public class UDPClient implements Runnable{
 				continue;
 			InetAddress IPAddress = InetAddress.getByName(setting.PEERSADDR[i]);
 			DatagramPacket sendPacket = new DatagramPacket(msg.getBytes(), msg.length() , IPAddress, setting.PEERS_UDP_SERVER_PORT[i]);
-			System.out.println("SEND TO: " + IPAddress.toString() + " Port: " + setting.PEERS_UDP_SERVER_PORT[i]+ " msg: " + msg);
+			w.append("UDPCLient Send TO: " + IPAddress.toString() + " Port: " + setting.PEERS_UDP_SERVER_PORT[i]+ " msg: " + msg+ "\n");w.flush();
 			clientSocket.send(sendPacket);
 		}
 		clientSocket.close();

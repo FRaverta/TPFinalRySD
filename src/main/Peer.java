@@ -18,9 +18,9 @@ public class Peer {
 		Setting setting = new Setting("setting.json",i);
 		DSManager ds = new DSManager(setting);
 		
-		UDPServer udpServer = new UDPServer(ds,setting.UDP_SERVER_PORT);
+		UDPServer udpServer = new UDPServer(ds,setting.PEER_ID,setting.UDP_SERVER_PORT);
 		UDPClient udpClient = new UDPClient(ds,setting);
-		TCPServer tcpServer = new TCPServer(setting.TCP_SERVER_PORT,ds);
+		TCPServer tcpServer = new TCPServer(ds, setting.PEER_ID,setting.TCP_SERVER_PORT);
 				
 		Thread udpServerThread = new Thread(udpServer);
 		Thread udpClientThread = new Thread(udpClient);
@@ -37,7 +37,8 @@ public class Peer {
 //		Setting setting = new Setting(0);
 
 		Peer p0 =  new Peer(0);
-//		Peer p1 =  new Peer(1);
+//|		Peer p1 =  new Peer(2);
+//		Peer p2 =  new Peer(2);
 		
 		
 //		Message m;
