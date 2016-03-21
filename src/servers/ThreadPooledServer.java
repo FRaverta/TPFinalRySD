@@ -2,24 +2,39 @@ package servers;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import Middleware.DSManager;
+import org.json.JSONException;
+
+import Interfaces.DSManagerToPeerListener;
+
 
 public class ThreadPooledServer implements Runnable{
 
-    protected int          serverPort   = 8080;
+    protected int          serverPort;
     protected ServerSocket serverSocket = null;
     protected boolean      isStopped    = false;
     protected Thread       runningThread= null;
-    protected ExecutorService threadPool = Executors.newFixedThreadPool(2);
-    private DSManager ds;
+    protected ExecutorService threadPool;
+    private DSManagerToPeerListener ds;
+    private FileWriter w;
     
-    public ThreadPooledServer(int port,DSManager ds){
+    public ThreadPooledServer(int port,int amoutOfPeers,int peerId ,DSManagerToPeerListener ds){
         this.serverPort = port;
         this.ds = ds;
+        threadPool = Executors.newFixedThreadPool(amoutOfPeers);
+		try {
+			w = new FileWriter("dump/PeerListener" + peerId + ".txt");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
     }
 
     public void run(){
@@ -63,14 +78,37 @@ public class ThreadPooledServer implements Runnable{
         try {
             this.serverSocket = new ServerSocket(this.serverPort);
         } catch (IOException e) {
-            throw new RuntimeException("Cannot open port 8080", e);
+            throw new RuntimeException("Cannot open port " + serverPort, e);
         }
     }
- /*   
-    public static void main(String args[]){
-    	ThreadPooledServer s = new ThreadPooledServer(2050);
-    	s.run();
+    
+    class WorkerRunnable implements Runnable{
+
+        protected Socket clientSocket = null;
+        DSManagerToPeerListener ds;
+    		   
+
+        public WorkerRunnable(Socket clientSocket,DSManagerToPeerListener ds) {
+            this.clientSocket = clientSocket;
+            this.ds =ds;
+        }
+
+        public void run() {
+    		/** Escuchar en el puerto, enviar mensaje a capa de servicio confiable y mandar ack. Volver a escuchar*/
+        	try{
+        		BufferedReader inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            	String msg = inFromClient.readLine();
+            	w.write("Receive from client: " + clientSocket.getInetAddress().getAddress().toString() + " Port: " + clientSocket.getPort()+ " msg: " + msg+"\n");w.flush();
+				ds.receive(msg);
+				clientSocket.close();    	
+    		} catch (IOException | JSONException e) {
+    			// TODO Auto-generated catch block
+    			System.out.println("Server Exception: " + e.toString());
+    		}
     	
     }
-    */
+
+    }
+
+
 }

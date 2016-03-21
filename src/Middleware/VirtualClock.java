@@ -1,5 +1,8 @@
 package Middleware;
 
+/**
+ * An implementation of Lamport's virtual clock.
+ * */
 public class VirtualClock {
 	
 	int vc;

@@ -1,34 +1,28 @@
 package servers;
 
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 
 import org.json.JSONException;
 
-import Middleware.DSManager;
+import Interfaces.DSManagerToSender;
 import main.Setting;
 
 public class TCPClient implements Runnable {
-	private DSManager ds;
+	private DSManagerToSender ds;
 	private Setting setting;
 	FileWriter w;
-//	Socket clientSocket[];
-//	DataOutputStream outToServer[];
+
 	
-	public TCPClient(DSManager ds,Setting setting){
+	public TCPClient(DSManagerToSender ds,Setting setting){
 		this.ds = ds;
 		this.setting = setting; 
 		
 		try {
-			w = new FileWriter("dump/UDPClient" + setting.PEER_ID + ".txt");
+			w = new FileWriter("dump/PeerSender" + setting.PEER_ID + ".txt");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -57,11 +51,11 @@ public class TCPClient implements Runnable {
 		for(int i=0; i < setting.PEERS; i++){
 			if(i == setting.PEER_ID)
 				continue;
-			Socket serverSocket = new Socket(setting.PEERSADDR[i],setting.PEERS_UDP_SERVER_PORT[i]);
+			Socket serverSocket = new Socket(setting.PEERSADDR[i],setting.PEERS_LISTENER_PORT[i]);
 			DataOutputStream outToClient = new DataOutputStream(serverSocket.getOutputStream());
 			outToClient.writeBytes(msg+"\n");
 			serverSocket.close();
-			System.out.println("UDPCLient Send TO: " + setting.PEERSADDR[i] + " Port: " + setting.PEERS_UDP_SERVER_PORT[i]+ " msg: " + msg+ "\n");
+			w.write("TCPCLient Send TO: " + setting.PEERSADDR[i] + " Port: " + setting.PEERS_LISTENER_PORT[i]+ " msg: " + msg+ "\n");
 		}		
 //		for(int i=0; i < setting.PEERS; i++){
 //			//Check if current message's addressee if current peer, if it happen don't send message

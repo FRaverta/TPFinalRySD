@@ -30,8 +30,7 @@ public class TCPServer implements Runnable{
     public void run(){
     try{
     	ServerSocket sk = new ServerSocket(port);
-    	w.append("TCPServer Running at port: " + port);
-    	w.flush();
+    	w.write("TCPServer Running at port: " + port);
     	while (true) {
     		try{
 	        	String clientSentence;
@@ -41,7 +40,7 @@ public class TCPServer implements Runnable{
 	            
 	            while(!connectionSocket.isClosed()){		           		           
 		            clientSentence = inFromClient.readLine().toLowerCase();
-		            w.append("TCPServer: receive" + clientSentence.toString() + "\n");w.flush();
+		            w.write("TCPServer: receive" + clientSentence.toString() + "\n");
 		            int e1 = clientSentence.indexOf(' ');
 		            	           
 		            String action = (e1 > 0 && e1 < clientSentence.length()  )? clientSentence.substring(0,e1):  clientSentence;

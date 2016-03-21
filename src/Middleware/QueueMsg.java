@@ -44,7 +44,7 @@ class QueueMsg implements Comparable<QueueMsg>{
 		if( currentTs == otherTs )
 			if( msg.id < o.msg.id) return 1;
 			else if ( msg.id > o.msg.id )  
-				return -1;
+					return -1;
 				else return 0;
 
 		//fatal error

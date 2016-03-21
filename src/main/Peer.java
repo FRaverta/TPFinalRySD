@@ -6,6 +6,7 @@ import java.net.SocketException;
 
 import org.json.JSONException;
 
+import Interfaces.DSManagerToPeerListener;
 import Middleware.DSManager;
 import Middleware.Message;
 import Middleware.UDPClient;
@@ -14,6 +15,10 @@ import PointOfSale.TCPServer;
 import servers.TCPClient;
 import servers.ThreadPooledServer;
 
+/**
+ * This class represent a simple node in Distributed System.
+ * 
+ * */
 public class Peer {
 
 	public Peer(int i) throws FileNotFoundException, JSONException{
@@ -22,8 +27,7 @@ public class Peer {
 		
 		//UDPServer udpServer = new UDPServer(ds,setting.PEER_ID,setting.UDP_SERVER_PORT);
 		//UDPClient udpClient = new UDPClient(ds,setting);
-		
-		ThreadPooledServer udpServer = new ThreadPooledServer(setting.UDP_SERVER_PORT, ds);
+		ThreadPooledServer udpServer = new ThreadPooledServer(setting.LISTENER_PORT,setting.PEERS,setting.PEER_ID, ds);
 		TCPClient udpClient = new TCPClient(ds, setting);
 		TCPServer tcpServer = new TCPServer(ds, setting.PEER_ID,setting.TCP_SERVER_PORT);
 				
@@ -42,7 +46,7 @@ public class Peer {
 //		Setting setting = new Setting(0);
 
 		Peer p0 =  new Peer(0);
-		Peer p1 =  new Peer(1);
+//		Peer p1 =  new Peer(1);
 //|		Peer p1 =  new Peer(2);
 //		Peer p2 =  new Peer(2);
 		

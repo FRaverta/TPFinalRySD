@@ -2,17 +2,29 @@ package PointOfSale;
 
 import Interfaces.StateToDSManager;
 
+/**
+ * This class represent the bus state.
+ * */
 public class State implements StateToDSManager{
 	
-	private final int maxSeats=50;
+	/** Maximum amount of seats in bus*/
+	private final int MAX_SEATS;
+	
+	/**Amount of available seats in bus*/
 	private int freeSeats;
 
-	public State(){
-		freeSeats = maxSeats;	
+	/**
+	 * Class constructor
+	 * */
+	public State(int maxSeats){
+		MAX_SEATS = maxSeats;
+		freeSeats = MAX_SEATS;	
 	}
 	
+	/**
+	 * try sub n seats
+	 * */
 	public synchronized boolean sub(int n){
-		System.out.println("sub " + n + "seats = " + freeSeats);
 		if (n <= freeSeats){
 			freeSeats = freeSeats - n;
 			return true;
@@ -20,15 +32,20 @@ public class State implements StateToDSManager{
 		return false;
 	}
 	
+	/**
+	 * try to add n seats
+	 * */
 	public synchronized boolean add(int n){
-		System.out.println("add " + n + "seats = " + freeSeats);
-		if ( freeSeats + n <= maxSeats){
+		if ( freeSeats + n <= MAX_SEATS){
 			freeSeats = freeSeats + n;
 			return true;
 		}
 		return false;
 	}
 	
+	/**
+	 * Get amount of available seats
+	 * */
 	public synchronized int get(){
 		return freeSeats;
 	}

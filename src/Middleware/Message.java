@@ -8,11 +8,18 @@ import org.json.JSONObject;
  * 		_int id: process id. It will be unique in the distributed system.
  * 		_int action: represent the action that try to be performed. (n>0 represent: reserve n, n<0 represent: free -n, n=0 represente: OK msg)
  * 		_int ts: time stamp of virtual clock for Ricart-Agrawala Algorithm 
+ * 
+ * When action=0, the fields id and ts values are the values of these fields in the message for which this vote is intended.  
  * */
+
 public class Message {
 
 	protected final int id,action,ts;
-	
+
+	/**
+	 * Class constructor
+	 * 
+	 * */
 	public Message(int id,int ts,int action){
 		this.id = id;
 		this.ts = ts;
@@ -33,7 +40,7 @@ public class Message {
 	}
 	
 	/**
-	 * Construct a JSON Object for current message
+	 * Construct a JSON Object from current message
 	 * 
 	 * @return JSONObject resenting current message 
 	 * @throws JSONException 
@@ -46,6 +53,9 @@ public class Message {
 		return result;
 	}
 	
+	/**
+	 * Construct an string representation for current action.
+	 * */
 	public String toString(){
 		try{
 			return this.asJSONObject().toString();
@@ -54,25 +64,4 @@ public class Message {
 			
 	}
 
-/*	
-	public static void main(String args[]){
-		
-		try {
-			Message m1 = new Message(1,2);
-			Message m2 = new Message(2,3);
-			m1.setTs(10);
-			System.out.println(m1.toString());
-			m1.setTs(15);
-			System.out.println(m1.toString());
-			String sm1 = m1.toString();
-			String sm2 = m1.toString();
-			Message mm1 =  new Message(sm1);
-			System.out.println("id: " + mm1.getInt("id") + " " + mm1.getInt("action") + " " + mm1.getInt("ts") );
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-*/
 }
