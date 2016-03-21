@@ -157,10 +157,11 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToPeerListener,D
 			//build an object for enqueue current message in  Ricart-Agrawala's algorithm queue
 			System.out.println("Enqueue " + queueMsg.msg.toString() );
 			queue.add(queueMsg);
-			if(queueMsg == queue.peek())							
+			if(queueMsg == queue.peek()){							
 				queueMsg.vote();
-				sendOkMsg(queueMsg.msg);
 				queueMsg.setAsVote();
+				sendOkMsg(queueMsg.msg);
+			}
 	} 
 	
 	/**
@@ -168,7 +169,7 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToPeerListener,D
 	 * check if the new queue top message was vote for current peer, 
 	 * if it wasn't voted, it is vote. Then try to dequeue other message. 
 	 * */
-	private synchronized void  tryDequeue(){			
+	private synchronized void  tryDequeue(){
 		if(!queue.isEmpty() && queue.peek().getVotes() == setting.PEERS){
 			QueueMsg action = queue.poll();
 			vc.inc();
@@ -228,12 +229,12 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToPeerListener,D
 		boolean vote = false;
 	
 		//check if the vote's owner arrive. If it happend it should  
-		for(QueueMsg qm: queue)
+		for(QueueMsg qm: queue){
 			if (vote = qm.checkVote(okMsg)){				
 				qm.vote();
 				break; 
 			}
-		
+		}
 		//if the message's owner hasn't arrive, save it. 
 		if(!vote)
 			synchronized(OkMsgList){				
