@@ -2,6 +2,7 @@ package main;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Scanner;
 
 import org.json.JSONArray;
@@ -45,7 +46,7 @@ public class Setting {
 	 * @param id- unique identifier for current peer.
 	 */
 	public Setting(String path,int id) throws FileNotFoundException, JSONException{
-		File f = new File(path);		
+		InputStream f = getClass().getResourceAsStream(path);		
 		Scanner scanner = new Scanner( f );
 		String text = scanner.useDelimiter("\\A").next();
 		scanner.close(); // Put this call in a finally block
