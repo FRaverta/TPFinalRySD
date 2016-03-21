@@ -1,7 +1,7 @@
-package servers;
+package Middleware.TCPService;
 
 import java.io.DataOutputStream;
-import java.io.FileWriter;
+//import java.io.FileWriter;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
@@ -11,27 +11,42 @@ import org.json.JSONException;
 import Interfaces.DSManagerToSender;
 import main.Setting;
 
+/**
+ * This class implements a TCP Client that send messages to all peers in distributed system.
+ * 
+ * */
 public class TCPClient implements Runnable {
+	
+	/**The message provider*/
 	private DSManagerToSender ds;
+
+	/**System configuration file*/
 	private Setting setting;
-	FileWriter w;
+	
+	/**For build a system log*/
+//	FileWriter w;
 
 	
+	/**
+	 * Class constructor
+	 * */
 	public TCPClient(DSManagerToSender ds,Setting setting){
 		this.ds = ds;
 		this.setting = setting; 
 		
-		try {
-			w = new FileWriter("dump/PeerSender" + setting.PEER_ID + ".txt");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			w = new FileWriter("dump/PeerSender" + setting.PEER_ID + ".txt");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
 	}
 	
 
-
+	/**
+	 * Obtain messages from the top layer and send to all peers in distributed system
+	 * */
 	public void run() {
 		while(true){
 			String m;
@@ -45,9 +60,11 @@ public class TCPClient implements Runnable {
 			
 		}
 	}
-
+	/**
+	 * Enable conexion with each peers in distributed system, send message and after that close conexion
+	 * */
 	public void send(String msg) throws SocketException, IOException{
-		/*Enviar mensaje a todos los peers (BROADCAST)*/
+		
 		for(int i=0; i < setting.PEERS; i++){
 			if(i == setting.PEER_ID)
 				continue;
@@ -55,18 +72,8 @@ public class TCPClient implements Runnable {
 			DataOutputStream outToClient = new DataOutputStream(serverSocket.getOutputStream());
 			outToClient.writeBytes(msg+"\n");
 			serverSocket.close();
-			w.write("TCPCLient Send TO: " + setting.PEERSADDR[i] + " Port: " + setting.PEERS_LISTENER_PORT[i]+ " msg: " + msg+ "\n");w.flush();
+//			w.write("TCPCLient Send TO: " + setting.PEERSADDR[i] + " Port: " + setting.PEERS_LISTENER_PORT[i]+ " msg: " + msg+ "\n");w.flush();
 		}		
-//		for(int i=0; i < setting.PEERS; i++){
-//			//Check if current message's addressee if current peer, if it happen don't send message
-//			if(i == setting.PEER_ID)
-//				continue;
-//			InetAddress IPAddress = InetAddress.getByName(setting.PEERSADDR[i]);
-//			DatagramPacket sendPacket = new DatagramPacket(msg.getBytes(), msg.length() , IPAddress, setting.PEERS_UDP_SERVER_PORT[i]);
-//			w.append("UDPCLient Send TO: " + IPAddress.toString() + " Port: " + setting.PEERS_UDP_SERVER_PORT[i]+ " msg: " + msg+ "\n");w.flush();
-//			clientSocket.send(sendPacket);
-//		}
-//		clientSocket.close();
 	}
 	
 

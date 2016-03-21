@@ -1,4 +1,4 @@
-package PointOfSale;
+package Middleware;
 
 import Interfaces.StateToDSManager;
 

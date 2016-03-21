@@ -1,9 +1,9 @@
-package servers;
+package Middleware.TCPService;
 
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.BufferedReader;
-import java.io.FileWriter;
+//import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.ExecutorService;
@@ -13,30 +13,50 @@ import org.json.JSONException;
 
 import Interfaces.DSManagerToPeerListener;
 
-
+/**
+ * This class implements a multithread TCP Server. 
+ * 
+ * This implementation is based on code from this web page: http://tutorials.jenkov.com/java-multithreaded-servers/thread-pooled-server.html
+ * */
 public class ThreadPooledServer implements Runnable{
 
+	/** The port in witch server listen */
     protected int          serverPort;
-    protected ServerSocket serverSocket = null;
-    protected boolean      isStopped    = false;
-    protected Thread       runningThread= null;
-    protected ExecutorService threadPool;
-    private DSManagerToPeerListener ds;
-    private FileWriter w;
     
+   
+    protected ServerSocket serverSocket = null;
+    
+    protected boolean      isStopped    = false;
+    
+    protected Thread       runningThread= null;
+    
+    protected ExecutorService threadPool;
+    
+    /** The messages receiver*/
+    private DSManagerToPeerListener ds;
+
+	/**For build a system log*/
+//    private FileWriter w;
+    
+    /**
+     * Class constructor
+     * */
     public ThreadPooledServer(int port,int amoutOfPeers,int peerId ,DSManagerToPeerListener ds){
         this.serverPort = port;
         this.ds = ds;
         threadPool = Executors.newFixedThreadPool(amoutOfPeers);
-		try {
-			w = new FileWriter("dump/PeerListener" + peerId + ".txt");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			w = new FileWriter("dump/PeerListener" + peerId + ".txt");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
     }
 
+    /**
+     * Listen to others peers and report message to top layer.
+     * */
     public void run(){
         synchronized(this){
             this.runningThread = Thread.currentThread();
@@ -82,6 +102,10 @@ public class ThreadPooledServer implements Runnable{
         }
     }
     
+    
+    /**
+     * Inner class that implements a thread that give the service to a conexion
+     * */
     class WorkerRunnable implements Runnable{
 
         protected Socket clientSocket = null;
@@ -92,13 +116,13 @@ public class ThreadPooledServer implements Runnable{
             this.clientSocket = clientSocket;
             this.ds =ds;
         }
-
+        
+        /** Listen for a message and deliver it to top layer*/
         public void run() {
-    		/** Escuchar en el puerto, enviar mensaje a capa de servicio confiable y mandar ack. Volver a escuchar*/
         	try{
         		BufferedReader inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             	String msg = inFromClient.readLine();
-            	w.write("Receive from client: " + clientSocket.getInetAddress().getAddress().toString() + " Port: " + clientSocket.getPort()+ " msg: " + msg+"\n");w.flush();
+//            	w.write("Receive from client: " + clientSocket.getInetAddress().getAddress().toString() + " Port: " + clientSocket.getPort()+ " msg: " + msg+"\n");w.flush();
 				ds.receive(msg);
 				clientSocket.close();    	
     		} catch (IOException | JSONException e) {

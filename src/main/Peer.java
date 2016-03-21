@@ -2,6 +2,7 @@ package main;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.SocketException;
 
 import org.json.JSONException;
@@ -9,11 +10,10 @@ import org.json.JSONException;
 import Interfaces.DSManagerToPeerListener;
 import Middleware.DSManager;
 import Middleware.Message;
-import Middleware.UDPClient;
-import Middleware.UDPServer;
-import PointOfSale.TCPServer;
-import servers.TCPClient;
-import servers.ThreadPooledServer;
+import Middleware.TCPService.TCPClient;
+import Middleware.TCPService.ThreadPooledServer;
+import Middleware.UDPService.UDPClient;
+import Middleware.UDPService.UDPServer;
 
 /**
  * This class represent a simple node in Distributed System.
@@ -45,9 +45,9 @@ public class Peer {
 		
 //		Setting setting = new Setting(0);
 
-		Peer p0 =  new Peer(0);
-//		Peer p1 =  new Peer(1);
-//|		Peer p1 =  new Peer(2);
+		Peer p0 =  new Peer(1);
+//		Peer p1 =  new Peer(2);
+//		Peer p2 =  new Peer(0);
 //		Peer p2 =  new Peer(2);
 		
 		

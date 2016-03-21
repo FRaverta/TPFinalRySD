@@ -3,20 +3,20 @@
 "PEERS": [ 
 	
 	{
-	 "IP": "192.168.1.104",
-	 "UDP_SERVER_PORT": 2050,
+	 "IP": "192.168.1.100",
+	 "PEER_LISTENER_PORT": 2050,
 	 "TCP_SERVER_PORT": 2051
 	},
      {
-	 "IP": "192.168.1.102",
-	 "UDP_SERVER_PORT": 2052,
+	 "IP": "192.168.1.104",
+	 "PEER_LISTENER_PORT": 2052,
 	 "TCP_SERVER_PORT": 2053
         },
      {
 	 "IP": "192.168.1.105",
-	 "UDP_SERVER_PORT": 2054,
+	 "PEER_LISTENER_PORT": 2054,
 	 "TCP_SERVER_PORT": 2055
-        }
+      }
         
 	]
 }

@@ -1,6 +1,5 @@
 package main;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Scanner;
@@ -60,7 +59,7 @@ public class Setting {
 		for (int i = 0; i < a.length(); i++){
 			JSONObject peer = a.getJSONObject(i);
 			PEERSADDR[i] = peer.getString("IP");
-			PEERS_LISTENER_PORT[i] = peer.getInt("UDP_SERVER_PORT");
+			PEERS_LISTENER_PORT[i] = peer.getInt("PEER_LISTENER_PORT");
 			PEERS_TCP_SERVER_PORT[i] = peer.getInt("TCP_SERVER_PORT");
 		}
 		
@@ -77,14 +76,14 @@ public class Setting {
 	public String toString(){
 		StringBuilder st = new StringBuilder();
 		st.append("ID: " + PEER_ID + "\n" );
-		st.append("UDP SERVER PORT: " + LISTENER_PORT + "\n");
+		st.append("PEER_LISTENER_PORT: " + LISTENER_PORT + "\n");
 		st.append("SETS: " + SEATS + "\n");
 		st.append("Amount Of Peers: " + PEERS);
 		st.append("\n");
 		
 		for(int i = 0; i<PEERS; i++)
 			st.append("ID: " + i + " ip: " + PEERSADDR[i] +
-					 " UDP server port: " + PEERS_LISTENER_PORT[i] +
+					 " PEER_LISTENER_PORT: " + PEERS_LISTENER_PORT[i] +
 					 " TCP server port: " + PEERS_TCP_SERVER_PORT[i] + "\n" );
 		return st.toString();
 	}	

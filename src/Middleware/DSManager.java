@@ -10,7 +10,6 @@ import org.json.JSONException;
 import Interfaces.DSManagerToTCPServer;
 import Interfaces.DSManagerToSender;
 import Interfaces.DSManagerToPeerListener;
-import PointOfSale.State;
 import main.Setting;
 
 /**

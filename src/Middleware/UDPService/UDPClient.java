@@ -1,4 +1,4 @@
-package Middleware;
+package Middleware.UDPService;
 
 import main.Setting;
 
@@ -7,7 +7,8 @@ import java.net.*;
 
 import org.json.JSONException;
 
-import Interfaces.DSManagerToSender; 
+import Interfaces.DSManagerToSender;
+import Middleware.DSManager; 
 
 
 /**
