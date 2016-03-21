@@ -85,10 +85,6 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToPeerListener,D
 		else
 			externalActionRequest(m);
 	}
-	
-
-	
-	
 		
 
 
@@ -271,8 +267,8 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToPeerListener,D
 					OkMsgList.remove(i);
 					//perform the election
 					queueMsg.vote();
-				}
-				i++;
+				}else
+					i++;
 			}
 		}
 		
