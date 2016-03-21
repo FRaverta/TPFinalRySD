@@ -55,7 +55,7 @@ public class TCPClient implements Runnable {
 			DataOutputStream outToClient = new DataOutputStream(serverSocket.getOutputStream());
 			outToClient.writeBytes(msg+"\n");
 			serverSocket.close();
-			w.write("TCPCLient Send TO: " + setting.PEERSADDR[i] + " Port: " + setting.PEERS_LISTENER_PORT[i]+ " msg: " + msg+ "\n");
+			w.write("TCPCLient Send TO: " + setting.PEERSADDR[i] + " Port: " + setting.PEERS_LISTENER_PORT[i]+ " msg: " + msg+ "\n");w.flush();
 		}		
 //		for(int i=0; i < setting.PEERS; i++){
 //			//Check if current message's addressee if current peer, if it happen don't send message
