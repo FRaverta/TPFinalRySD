@@ -1,8 +1,5 @@
 package Interfaces;
 
-import java.io.IOException;
-import java.net.SocketException;
-
 import org.json.JSONException;
 
 /**

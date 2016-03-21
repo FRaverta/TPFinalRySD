@@ -3,10 +3,24 @@ import java.io.*;
 import java.net.*;
 import java.io.IOException;
 import Middleware.DSManager;
+
+/**
+ * This class implements a TCP Server that accept the following instructions
+ *  	_ reserve  n - reserve n (n > 0) seats
+ *      _ cancel   n - free    n (n > 0) seats
+ *      _ available  - consult how many seats are free
+ *      _ quit       - for close connection
+ * */
 public class TCPServer implements Runnable{
+	
+	/**Port number in witch listen current server*/
 	int port;
+	
+	/**The messages receiver*/
 	DSManager ds;
-	FileWriter w;
+
+	/**For build a system log*/
+//	FileWriter w;
 	
 	
 	private static final String errorMsg= "The given instruction was incorrect. \n"+
@@ -16,21 +30,27 @@ public class TCPServer implements Runnable{
 										      "_ quit       - for close conexion\n";
 										   
 
+	/**
+	 * Class constructor
+	 * */
 	public TCPServer(DSManager ds,int id, int port){
 			this.port = port;
 			this.ds = ds;
-			try {
-				w = new FileWriter("dump/TCPServer" + id + ".txt");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			try {
+//				w = new FileWriter("dump/TCPServer" + id + ".txt");
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 	}
 		
+	/**
+	 * Listen for request and deliver to the top layer
+	 **/
     public void run(){
     try{
     	ServerSocket sk = new ServerSocket(port);
-    	w.write("TCPServer Running at port: " + port);w.flush();
+//    	w.write("TCPServer Running at port: " + port);w.flush();
     	while (true) {
     		try{
 	        	String clientSentence;
@@ -40,7 +60,7 @@ public class TCPServer implements Runnable{
 	            
 	            while(!connectionSocket.isClosed()){		           		           
 		            clientSentence = inFromClient.readLine().toLowerCase();
-		            w.write("TCPServer: receive" + clientSentence.toString() + "\n");w.flush();
+//		            w.write("TCPServer: receive" + clientSentence.toString() + "\n");w.flush();
 		            int e1 = clientSentence.indexOf(' ');
 		            	           
 		            String action = (e1 > 0 && e1 < clientSentence.length()  )? clientSentence.substring(0,e1):  clientSentence;

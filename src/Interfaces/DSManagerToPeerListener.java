@@ -2,8 +2,6 @@ package Interfaces;
 
 import org.json.JSONException;
 
-import Middleware.Message;
-
 /**
  * Declaration of methods that Agent provides to DSManager
  * 
