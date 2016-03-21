@@ -159,6 +159,7 @@ public class DSManager implements DSManagerToTCPServer,DSManagerToPeerListener,D
 	 * */
 	private synchronized void enqueue(QueueMsg queueMsg){
 			//build an object for enqueue current message in  Ricart-Agrawala's algorithm queue
+			System.out.println("Enqueue " + queueMsg.msg.toString() );
 			queue.add(queueMsg);
 			if(queueMsg == queue.peek())							
 				queueMsg.vote();
